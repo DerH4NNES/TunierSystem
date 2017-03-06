@@ -2,6 +2,14 @@
 Bei dem Projekt handelt es sich um ein Tuniersystem mit einer Anzeige.
 Es besteht aus 4 wesentlichen Teilen.
 
+#Aufrufen der Client und Gamemaster Anwendung
+	- Gamemaster
+		- http://SERVERIP/master.html:PORT
+	- Client
+		- http://SERVERIP/client.html:PORT
+	- Schiedsrichter
+		- http://SERVERIP/schiedsrichter.html:PORT
+		
 #Anforderungen
 Für den Server
  - Einen Server mit zwei freien freigeschalteten TCP Ports.
