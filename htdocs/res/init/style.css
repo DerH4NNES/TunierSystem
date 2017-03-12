@@ -1,0 +1,34 @@
+.form-group
+{
+    max-width:300px;
+}
+
+.tab a
+{
+    cursor:pointer;
+}
+
+.pt20
+{
+    padding-top:20px;
+}
+
+.lgfl
+{
+    float:left;
+    max-width:350px;
+    max-height:400px;
+    overflow-y:scroll;
+}
+
+.sonst-edits
+{
+    float:left;
+    padding-left:40px;
+    min-width:500px;
+}
+
+.fle
+{
+    float:right;
+}

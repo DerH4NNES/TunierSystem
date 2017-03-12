@@ -1,0 +1,24 @@
+{
+  "name": "bkh-volleyball",
+  "version": "1.0.0",
+  "description": "A Volleyball-System made for Berufskolleg-Hilden",
+  "main": "volleyballserver.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DerH4NNES/TunierSystem/"
+  },
+  "author": "Sascha Hannes, Marcel Aust",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^2.1.5",
+    "body-parser": "^1.17.1",
+    "compression": "^1.6.2",
+    "express": "^4.15.2",
+    "helmet": "^3.4.1",
+    "md5": "^2.2.1",
+    "socket.io": "^1.7.3"
+  }
+}

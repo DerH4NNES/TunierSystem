@@ -1,0 +1,29 @@
+<!Doctype html>
+<html ng-app="masterApp">
+    <head>
+        <title>GameMaster</title>
+        <link rel="stylesheet" type="text/css" href="/cdn/res/bootstrap.css"/>
+        <link rel="stylesheet" type="text/css" href="/cdn/res/master/style.css"/>
+        <script type="text/javascript" src="/cdn/res/angular-bundle.js"></script>
+        <script type="text/javascript" src="/cdn/res/bootstrap.js"></script>
+        <script type="text/javascript" src="/cdn/res/master/app.js"></script>
+    </head>
+    <body ng-controller="mainCtrl" ng-cloak>
+        
+        <div class="container">
+            <div class="page-header">
+                <h1>Game Master<small> Turnier Management</small></h1>
+            </div>
+            
+            <h3>Laufende Spiele</h3>
+            <ul class="nav nav-tabs">
+                <li role="presentation" class="tab" ng-repeat="tab in config.referees track by $index" ng-class="{'active':activeRefereeTab==tab}" ng-click="setActiveTab(tab);"><a>Schiedsrichter #{{tab.id}}</a></li>
+            </ul>
+            <div class="container pt20">
+                
+            </div>
+
+        </div>
+        #@KEYPLACE@#
+    </body>
+</html>

@@ -1,0 +1,77 @@
+<!Doctype html>
+<html ng-app="initApp">
+    <head>
+        <title>Initialize a new Game</title>
+        <link rel="stylesheet" type="text/css" href="/cdn/res/bootstrap.css"/>
+        <link rel="stylesheet" type="text/css" href="/cdn/res/init/style.css"/>
+        <script type="text/javascript" src="/cdn/res/angular-bundle.js"></script>
+        <script type="text/javascript" src="/cdn/res/bootstrap.js"></script>
+        <script type="text/javascript" src="/cdn/res/init/app.js"></script>
+    </head>
+    <body ng-controller="mainCtrl" ng-cloak>
+        
+        <div class="container">
+            <div class="page-header">
+                <h1>Turnier Starten <small>Einstellungen für die Turniere festlegen</small></h1>
+            </div>
+            <form>
+                <div class="form-group">
+                    <label for="turnierAmount">Anzahl Turniere</label>
+                    <input type="number" class="form-control" id="turnierAmount" placeholder="1" ng-blur="changeTArr();" ng-model="config.competitionAmount">
+                </div>
+            </form>
+
+            <ul class="nav nav-tabs">
+                <li role="presentation" class="tab" ng-repeat="tab in competitions track by $index" ng-class="{'active':activeTab==tab}" ng-click="setActiveTab(tab);"><a>{{tab.name}}</a></li>
+            </ul>
+            <div class="container pt20">
+                
+                <form>
+                    <div class="form-group">
+                        <label for="turnierAmount">Name des Turniers</label>
+                        <input type="text" class="form-control" placeholder="Name" ng-model="activeTab.name">
+                    </div>
+                    <h3>Teams:</h3>
+                    <ul class="list-group lgfl">
+                        <li class="list-group-item" ng-repeat="team in activeTab.teams track by $index">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Name" ng-model="team.name">
+                                <span class="input-group-btn">
+                                    <button class="btn btn-default" type="button" ng-click="delTeam(team);">x</button>
+                                </span>
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <div class="input-group">
+                                <input type="text" id="new-team-name" class="form-control" placeholder="neuer Name" ng-model="newTeam" onkeydown="if(event.keyCode==13){ $('#new-team-btn').trigger('click');return false;}">
+                                <span class="input-group-btn">
+                                    <button class="btn btn-default" id="new-team-btn" type="button" ng-click="addTeam();" onclick="$('#new-team-name').focus();">+</button>
+                                </span>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="sonst-edits">
+                        <div class="form-group" ng-class="{'has-error':activeTab.teams.length%activeTab.levels[0].teamGroupAmount}">
+                            <label for="anzTeams">Anzahl Teams pro Gruppe</label>
+                            <input type="number" class="form-control" id="anzTeams" placeholder="Anzahl Teams pro Gruppe" min="2" ng-model="activeTab.levels[0].teamGroupAmount">
+                        </div>
+                        <div class="form-group">
+                            <label for="anzWeiterkommend">Weiterkommende Teams</label>
+                            <input type="number" class="form-control" id="anzWeiterkommend" placeholder="Weiterkommende Teams" min="1" ng-model="activeTab.levels[0].teamWinnerAmount">
+                        </div>
+                        <div class="form-group">
+                            <label for="anzPlaces">Anzahl Plätze</label>
+                            <input type="number" class="form-control" id="anzPlaces" placeholder="Anzahl Plätze" min="1" ng-model="config.placesAmount">
+                        </div>
+                        <button type="button" class="btn btn-primary btn-lg fle" ng-click="submitConfig();">Starten</button>
+                    </div>
+                </form>
+
+            </div>
+
+
+
+        </div>
+
+    </body>
+</html>
