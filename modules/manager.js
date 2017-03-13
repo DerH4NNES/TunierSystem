@@ -208,12 +208,14 @@ class storageController {
 		return this.games.filter((t)=>{return t.finished==false&&t.started==false;});
 	}
 	get getRemainingGamesNonBlocked(){
+		console.log(this.games);
 		return this.games.filter((t)=>{return t.finished==false&&t.started==false&&t.blocked==false;});
 	}
 
 	get getRandomRemainingGame()
 	{
-		var rg = this.getRemainingGames;
+		var rg = this.getRemainingGamesNonBlocked;
+		console.log(rg);
 		var g = rg[Math.floor(Math.random()*rg.length)];
 		g.blocked=true;
 		return g;

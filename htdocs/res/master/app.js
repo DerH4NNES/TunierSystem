@@ -89,14 +89,20 @@ app.controller("mainCtrl",function($scope,$http){
         }
     };
 
+    $scope.getTimestampDisplay = function(ts){
+        var dur = moment.duration(moment().diff(moment(ts)));
+        return dur.minutes()+":"+dur.seconds();
+    };
+
     $scope.getNewGameForReferee = function()
-    {
-        $scope.emit("pickNewGame",JSON.stringify({type:"master","competition":Math.floor(Math.random()*$scope.config.competitions.length),"referee":$scope.config.referees.indexOf($scope.activeRefereeTab)}));
+    {   
+        if($scope.gamesToPlayLeft())
+            $scope.socket.emit("pickNewGame",JSON.stringify({type:"master","competition":Math.floor(Math.random()*$scope.config.competitions.length),"referee":$scope.config.referees.indexOf($scope.activeRefereeTab)}));
     };
 
     $scope.startRefereeGame = function()
     {
-        $scope.emit("pickNewGame",JSON.stringify({type:"master","referee":$scope.config.referees.indexOf($scope.activeRefereeTab)}));
+        $scope.socket.emit("pickNewGame",JSON.stringify({type:"master","referee":$scope.config.referees.indexOf($scope.activeRefereeTab)}));
     };
 
     $scope.gameStateFilter = function(state){
@@ -107,6 +113,7 @@ app.controller("mainCtrl",function($scope,$http){
 
     //Start Controller
     $scope.onload();
+    setTimeout(function(){if(!$scope.$$phase)$scope.$apply();},1000);
 
 });
 

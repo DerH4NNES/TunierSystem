@@ -23,6 +23,29 @@
                 
                 <div ng-if="activeRefereeTab.actualGame">
                     <div ng-if="activeRefereeTab.actualGame.started">
+                        <div class="row">
+                            <div class="col-md-6">{{activeRefereeTab.actualGame.Team1}}: {{activeRefereeTab.actualGame.Points[0]}}</div>
+                            <div class="col-md-6">{{activeRefereeTab.actualGame.Team2}}: {{activeRefereeTab.actualGame.Points[1]}}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h3>{{getTimestampDisplay(activeRefereeTab.actualTime.timestamp)}}</h3>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <br/><br/>
+                                <button type="button" class="btn btn-primary btn-lg btn-block" ng-click="addPointT1();">Punkt</button>
+                                <button type="button" class="btn btn-primary btn-block" ng-click="remPointT1();">Punkt abziehen</button>
+                                <br/>
+                            </div>
+                            <div class="col-md-6">
+                                <br/><br/>
+                                <button type="button" class="btn btn-primary btn-lg btn-block" ng-click="addPointT2();">Punkt</button>
+                                <button type="button" class="btn btn-primary btn-block" ng-click="remPointT2();">Punkt abziehen</button>
+                                <br/>
+                            </div>
+                        </div>
                     </div>
                     <div ng-if="!activeRefereeTab.actualGame.started">
                         <br/><br/>
