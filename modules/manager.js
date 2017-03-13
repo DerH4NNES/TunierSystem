@@ -12,7 +12,6 @@
 	finishGame()
 	gamePoint(GameID,TeamID) 0|1
 	gameRemovePoint(gameID,TeamID) 0|1
-	MarcelDerHurensohn(Retard) 100-200 | in percent
 	
 	Sascha Hannes 2017(c)
 */
