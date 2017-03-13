@@ -51,8 +51,8 @@ class storageController {
 		}
 	
 		for(var i = 0; i < this.groups.length; i++){//Vorrundenspiele generieren	
-			for (var j = 0; j < this.groups[i].teams.length - 1; j++) {//Jedes Team bekommt einen durchlauf für alle Gegner. Bei letztem Durchlauf sind alle teams gesetzt
-				for (var k = j; k < this.groups[i].teams.length - 1; k++) {//Jedes Spiel wird generiert.
+			for (var j = 0; j < this.groups[i].teams.length; j++) {//Jedes Team bekommt einen durchlauf für alle Gegner. Bei letztem Durchlauf sind alle teams gesetzt
+				for (var k = j; k < this.groups[i].teams.length; k++) {//Jedes Spiel wird generiert.
 					if(j==k){continue;}
 					var game =
 						{
@@ -63,14 +63,18 @@ class storageController {
 							started: false,
 							timestamp: 0,
 							id:this.getRandomMD5,
-							layer:this.currentLayer,
+							layer:0,
 							blocked:false
 						};
+//console.log(game);
 					//Pushe auf Layer 0
 					this.games[0].push(game);
 				}
 			}
 		}	
+		console.log(this.groups.length);
+		console.log(this.groups[0].teams.length);
+		//console.log(this.group
 	}
 	startGame(gameID){
 		if(!games[gameID].finished){
@@ -124,7 +128,7 @@ class storageController {
 					started: false,
 					timestamp: 0,
 					id:this.getRandomMD5,
-					layer:this.currentLayer,
+					layer:this.currentLayer+1,
 					blocked:false
 				}
 			this.games[this.currentLayer + 1].push(game);
