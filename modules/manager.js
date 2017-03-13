@@ -53,7 +53,7 @@ class storageController {
 		for(var i = 0; i < this.groups.length; i++){//Vorrundenspiele generieren	
 			for (var j = 0; j < this.groups[i].teams.length - 1; j++) {//Jedes Team bekommt einen durchlauf für alle Gegner. Bei letztem Durchlauf sind alle teams gesetzt
 				for (var k = j; k < this.groups[i].teams.length - 1; k++) {//Jedes Spiel wird generiert.
-					if(j==k)continue;
+					if(j==k){continue;}
 					var game =
 						{
 							Team1: this.groups[i].teams[j],
@@ -143,8 +143,8 @@ class storageController {
 				else{
 					et.push(this.games[i].Team1);
 				}
-			}
 		}
+			}
 		return et;
 	}
 
