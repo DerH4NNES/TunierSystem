@@ -46,6 +46,11 @@ app.controller("mainCtrl",function($scope,$http){
             }
         });
 
+        $scope.socket.on("gameSet",function(msg){
+            var data = JSON.tryParse(msg);
+            if(data.status=="OK")location.reload();
+        });
+
         $scope.socket.emit("auth",JSON.stringify({
             "type":"master",
             "secret":ss
@@ -86,7 +91,12 @@ app.controller("mainCtrl",function($scope,$http){
 
     $scope.getNewGameForReferee = function()
     {
-        $scope.emit("pickNewGame",JSON.stringify($scope.config.referees.indexOf($scope.activeRefereeTab)));
+        $scope.emit("pickNewGame",JSON.stringify({type:"master","competition":Math.floor(Math.random()*$scope.config.competitions.length),"referee":$scope.config.referees.indexOf($scope.activeRefereeTab)}));
+    };
+
+    $scope.startRefereeGame = function()
+    {
+        $scope.emit("pickNewGame",JSON.stringify({type:"master","referee":$scope.config.referees.indexOf($scope.activeRefereeTab)}));
     };
 
     $scope.gameStateFilter = function(state){

@@ -22,11 +22,18 @@
             <div class="container pt20">
                 
                 <div ng-if="activeRefereeTab.actualGame">
+                    <div ng-if="activeRefereeTab.actualGame.started">
+                    </div>
+                    <div ng-if="!activeRefereeTab.actualGame.started">
+                        <br/><br/>
+                        <button type="button" class="btn btn-primary btn-lg btn-block" ng-click="startRefereeGame();">Starten</button>
+                        <br/><br/>
+                    </div>
+                </div>
+                <div ng-if="!activeRefereeTab.actualGame">
                     <br/><br/>
                     <button type="button" class="btn btn-primary btn-lg btn-block" ng-click="getNewGameForReferee();">Neues Spiel Zuweisen</button>
                     <br/><br/>
-                </div>
-                <div ng-if="!activeRefereeTab.actualGame">
                 </div>
 
             </div>
