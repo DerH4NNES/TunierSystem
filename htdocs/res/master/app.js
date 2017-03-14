@@ -51,6 +51,26 @@ app.controller("mainCtrl",function($scope,$http){
             if(data.status=="OK")location.reload();
         });
 
+        $scope.socket.on("addPoint",function(msg){
+            var data = JSON.tryParse(msg);
+            if(data){
+                console.log(data);
+                $scope.config.referees[data.referee].actualGame.Points[data.team]++;
+                $scope.config.competitions[data.competition].games.find(function(g){return g.id==data.game}).Points[data.team]++;
+                //if($scope.config.competitions[data.competition].layer.layer==0)$scope.config.competitions[data.competition].groups.find(function(g){console.log(g);return g.games.find(function(ga){if(ga.id==data.game){ga.Points[data.team]++;return true;}else return false;});});
+            }
+        });
+		
+		$scope.socket.on("remPoint",function(msg){
+            var data = JSON.tryParse(msg);
+            if(data){
+                console.log(data);
+                $scope.config.referees[data.referee].actualGame.Points[data.team]--;
+                $scope.config.competitions[data.competition].games.find(function(g){return g.id==data.game}).Points[data.team]--;
+                //if($scope.config.competitions[data.competition].layer.layer==0)$scope.config.competitions[data.competition].groups.find(function(g){console.log(g);return g.games.find(function(ga){if(ga.id==data.game){ga.Points[data.team]++;return true;}else return false;});});
+            }
+        });
+
         $scope.socket.emit("auth",JSON.stringify({
             "type":"master",
             "secret":ss
@@ -90,8 +110,15 @@ app.controller("mainCtrl",function($scope,$http){
     };
 
     $scope.getTimestampDisplay = function(ts){
-        var dur = moment.duration(moment().diff(moment(ts)));
-        return dur.minutes()+":"+dur.seconds();
+        //var dur = moment.duration(moment().diff(moment(ts)));
+        //console.log(dur);
+        //return dur.minutes()+":"+dur.seconds();
+        var ds = (Date.now()-parseInt(ts))/1000;
+        var t1= Math.floor(ds/60);
+        var t2 = Math.floor(ds%60);
+        if(t1==0)t1="00";else if(t1<10)t1="0"+t1;
+        if(t2==0)t2="00"; else if(t2<10)t2="0"+t2;
+        return t1+":"+t2;
     };
 
     $scope.getNewGameForReferee = function()
@@ -102,7 +129,7 @@ app.controller("mainCtrl",function($scope,$http){
 
     $scope.startRefereeGame = function()
     {
-        $scope.socket.emit("pickNewGame",JSON.stringify({type:"master","referee":$scope.config.referees.indexOf($scope.activeRefereeTab)}));
+        $scope.socket.emit("startRefereeGame",JSON.stringify({type:"master","referee":$scope.config.referees.indexOf($scope.activeRefereeTab)}));
     };
 
     $scope.gameStateFilter = function(state){
@@ -111,9 +138,28 @@ app.controller("mainCtrl",function($scope,$http){
         };
     };
 
+    //PUNKTE ETC
+    $scope.addPointT1= function(){
+        var game = $scope.activeRefereeTab.actualGame;
+        $scope.socket.emit("addPoint",JSON.stringify({competition:$scope.activeRefereeTab.actualGame.competition,id:game.id,team:0}));
+    };
+    $scope.addPointT2= function(){
+        var game = $scope.activeRefereeTab.actualGame;
+        $scope.socket.emit("addPoint",JSON.stringify({competition:$scope.activeRefereeTab.actualGame.competition,id:game.id,team:1}));
+    };
+	
+	$scope.remPointT1= function(){
+        var game = $scope.activeRefereeTab.actualGame;
+        $scope.socket.emit("remPoint",JSON.stringify({competition:$scope.activeRefereeTab.actualGame.competition,id:game.id,team:0}));
+    };
+    $scope.remPointT2= function(){
+        var game = $scope.activeRefereeTab.actualGame;
+        $scope.socket.emit("remPoint",JSON.stringify({competition:$scope.activeRefereeTab.actualGame.competition,id:game.id,team:1}));
+    };
+
     //Start Controller
     $scope.onload();
-    setTimeout(function(){if(!$scope.$$phase)$scope.$apply();},1000);
+    setInterval((function(){if(!$scope.$$phase)$scope.$apply();}).bind(this),1000);
 
 });
 

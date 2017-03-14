@@ -17,3 +17,9 @@ table.table tr.running
 {
     cursor:pointer;
 }
+
+.btextp
+{
+    font-size:30px;
+    font-weight:bold;
+}

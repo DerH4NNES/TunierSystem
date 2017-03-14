@@ -14,7 +14,6 @@
             <div class="page-header">
                 <h1>Game Master<small> Turnier Management</small></h1>
             </div>
-            
             <h3>Laufende Spiele</h3>
             <ul class="nav nav-tabs">
                 <li role="presentation" class="tab" ng-repeat="tab in config.referees track by $index" ng-class="{'active':activeRefereeTab==tab}" ng-click="setActiveTab(tab);"><a class="tab-link">Schiedsrichter #{{tab.id}}</a></li>
@@ -24,12 +23,12 @@
                 <div ng-if="activeRefereeTab.actualGame">
                     <div ng-if="activeRefereeTab.actualGame.started">
                         <div class="row">
-                            <div class="col-md-6">{{activeRefereeTab.actualGame.Team1}}: {{activeRefereeTab.actualGame.Points[0]}}</div>
-                            <div class="col-md-6">{{activeRefereeTab.actualGame.Team2}}: {{activeRefereeTab.actualGame.Points[1]}}</div>
+                            <div class="col-md-6 btextp">{{activeRefereeTab.actualGame.Team1.name}}: {{activeRefereeTab.actualGame.Points[0]}}</div>
+                            <div class="col-md-6 btextp">{{activeRefereeTab.actualGame.Team2.name}}: {{activeRefereeTab.actualGame.Points[1]}}</div>
                         </div>
                         <div class="row">
                             <div class="col-md-12">
-                                <h3>{{getTimestampDisplay(activeRefereeTab.actualTime.timestamp)}}</h3>
+                                <h3 style="text-align:center;">{{getTimestampDisplay(activeRefereeTab.actualGame.timestamp)}}</h3>
                             </div>
                         </div>
                         <div class="row">
@@ -46,8 +45,17 @@
                                 <br/>
                             </div>
                         </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <button type="button" class="btn btn-primary btn-lg btn-block" ng-click="stopGame();">Spiel beenden</button>
+                            </div>
+                        </div>
                     </div>
                     <div ng-if="!activeRefereeTab.actualGame.started">
+                        <div class="row">
+                            <div class="col-md-6 btextp">{{activeRefereeTab.actualGame.Team1.name}}: {{activeRefereeTab.actualGame.Points[0]}}</div>
+                            <div class="col-md-6 btextp">{{activeRefereeTab.actualGame.Team2.name}}: {{activeRefereeTab.actualGame.Points[1]}}</div>
+                        </div>
                         <br/><br/>
                         <button type="button" class="btn btn-primary btn-lg btn-block" ng-click="startRefereeGame();">Starten</button>
                         <br/><br/>
