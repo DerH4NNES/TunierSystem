@@ -35,7 +35,11 @@
                                 <tr ng-if="activeCompetitionsTab.layer.layer!=0"><th>Team</th></tr>
                             </thead>
                             <tbody>
+<<<<<<< HEAD
                                 <tr ng-if="activeCompetitionsTab.layer.layer==0" ng-repeat="bbgroup in activeCompetitionsTab.groups"><td>{{group.name}}</td><td><ul><li ng-repeat="team in group.teams">{{team.name}}</li></ul></td></tr>
+=======
+                                <tr ng-if="activeCompetitionsTab.layer.layer==0" ng-repeat="group in activeCompetitionsTab.groups"><td>{{group.name}}</td><td><ul><li ng-repeat="team in group.teams">{{team.name}}</li></ul></td></tr>
+>>>>>>> 92bfe2ba3ee44c30495bd196089d8b0da81adbe4
                                 <tr ng-if="activeCompetitionsTab.layer.layer!=0" ng-repeat="team in activeCompetitionsTab.teams"><td>{{team.name}}</td></tr>
                             </tbody>
                         </table>
