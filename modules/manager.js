@@ -43,8 +43,10 @@ class storageController {
 				let ll = Math.floor(Math.random() * l);
 				[this.JSONObject.teams[l - 1], this.JSONObject.teams[ll]] = [this.JSONObject.teams[ll], this.JSONObject.teams[l - 1]];
 			}
+		}
+		for (var j = 0; j < gcount; j++) {//Vorrunde generieren
 			for (var k = 0; k < tc / gcount; k++) {
-				this.groups[j].teams[k] = this.JSONObject.teams[j + k];
+				this.groups[j].teams[k] = this.JSONObject.teams[j*(tc/gcount)+k];
 				this.groups[j].teams[k].points = 0;
 			}
 		}
@@ -71,15 +73,32 @@ class storageController {
 				}
 			}
 		}	
-		console.log(this.groups.length);
-		console.log(this.groups[0].teams.length);
+		var tempgames = [];
+		var count=0;
+		var offset1 = 0;
+		var offset2 = this.games[0].length/gcount;
+		
+		for(var j=0;j<this.groups.length;j++){
+			for(var i=0;i<offset2;i++){
+				
+				tempgames[i*offset2 + offset1] = this.games[0][count];
+				count++;
+				
+			}
+			offset1++;
+		}
+		tempgames = tempgames.filter(function(n){ return n != undefined }); 
+		console.log(tempgames);
+		
+		this.games[0] = tempgames;
 		//console.log(this.group
 	}
 	startGame(gameID){
-		if(!games[gameID].finished){
+		var game = this.games[this.currentLayer].find((g)=>{return g.id==gameID;});
+		if(!game.finished){
 			var ts = Date.now();
-			games[gameID].timestamp = ts;
-			games[gameID].started = true;
+			game.timestamp = ts;
+			game.started = true;
 			return true;
 		}
 		return true;
@@ -208,18 +227,18 @@ class storageController {
 	}
 
 	get getRemainingGames(){
-		return this.games.filter((t)=>{return t.finished==false&&t.started==false;});
+		return this.games[this.currentLayer].filter((t)=>{return t.finished==false&&t.started==false;});
 	}
 	get getRemainingGamesNonBlocked(){
 		console.log(this.games);
-		return this.games.filter((t)=>{return t.finished==false&&t.started==false&&t.blocked==false;});
+		return this.games[this.currentLayer].filter((t,ind)=>{console.log("########",ind,"#########");console.log(t);return t.finished==false&&t.started==false&&t.blocked==false;});
 	}
-
+	
 	get getRandomRemainingGame()
 	{
 		var rg = this.getRemainingGamesNonBlocked;
 		console.log(rg);
-		var g = rg[Math.floor(Math.random()*rg.length)];
+		var g = rg[0];
 		g.blocked=true;
 		return g;
 	}
@@ -239,12 +258,12 @@ class storageController {
 	
 	//Punkt für Team x in Spiel x auf der aktuellen Ebene
 	gamePoint(gameID, teamID){
-		this.games[gameID].Points[teamID]++;
+		this.games[this.currentLayer].find((g)=>{return g.id==gameID;}).Points[teamID]++;
 	}
 	
 	//Punkt abziehen in Team x in Spiel x auf der aktuellen Ebene
 	gameRemovePoint(gameID, teamID){
-		this.games[gameID].Points[teamID]--;
+		this.games[this.currentLayer].find((g)=>{return g.id==gameID;}).Points[teamID]--;
 	}	
 } 
 

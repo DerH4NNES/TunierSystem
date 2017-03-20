@@ -18,7 +18,8 @@ process.chdir(__dirname);
 var config = {};
 var clients = [];
 var runningConfig = {
-    started:false
+    started:false,
+	anzeige: {html:""}
 };
 
 function init()
@@ -95,7 +96,17 @@ function registerRoutes()
             httpForbidden(res);
         }
     });
-
+	app.get("/anzeige",(req,res)=>{
+        if(runningConfig.started){
+			res.status(200);
+			res.setHeader("Content-Type","text/html");
+			res.send(runningConfig.anzeige.html.toString());
+			res.end();
+        }
+		else{
+			httpForbidden(res);
+		}
+    });
     app.post("/api/init",(req,res)=>{
         if(runningConfig.started==false){
             if(req.body.competitions){
@@ -135,12 +146,22 @@ function registerRoutes()
                             else{
                                 runningConfig.referees.forEach((rf)=>{rf.refereeHTML=data2;});
                                 //runningConfig.gameMaster.masterHTML=data;
-                                console.log("Game Started. Turniere: "+runningConfig.competitions.length);
-                                runningConfig.started=true;
-                                res.status(200);
-                                res.setHeader("Content-Type","text/plain");
-                                res.send("/master/"+runningConfig.gameMaster.secret);
-                                res.end();
+								fs.readFile(config.anzeigenFile,(erro2,datao2)=>{
+								if(erro2){
+									console.error("Blocking INIT - File3 not found!");
+									httpForbidden(res);
+								}
+								else{
+									runningConfig.anzeige.html=datao2;
+									//runningConfig.gameMaster.masterHTML=data;
+									console.log("Game Started. Turniere: "+runningConfig.competitions.length);
+									runningConfig.started=true;
+									res.status(200);
+									res.setHeader("Content-Type","text/plain");
+									res.send("/master/"+runningConfig.gameMaster.secret);
+									res.end();
+								}
+							});
                             }
                         });
                     }
@@ -249,6 +270,31 @@ function registerRoutes()
             httpForbidden(res);
         }
     });
+	app.get("/api/anzeige/data",
+		function(req,res){
+			if(runningConfig.started){
+				var toSend={competitions:[]};
+				async.each(runningConfig.competitions,(comp,_next)=>{
+					toSend.competitions.push({"name":comp.getTurnierName,"games":comp.getGamesThisLayer,"teams":comp.getRemainingTeams,"layer":comp.getCurrentLayer});
+					if(toSend.competitions[toSend.competitions.length-1].layer.layer==0)toSend.competitions[toSend.competitions.length-1].groups=comp.getGroups;
+					_next();
+				},(err)=>{
+					if(err){
+						console.error(err);
+						httpForbidden(res);
+					}
+					else{
+						res.status(200);
+						res.setHeader("Content-Type","application/json");
+						res.send(JSON.stringify(toSend));
+					}
+				});
+				}
+				else{
+					httpForbidden(res);
+				}
+		}
+	);
 
 
 }
@@ -277,6 +323,11 @@ function startSocket()
                 tref.socket = socket;
                 socket.emit("authConfirm",JSON.stringify({"status":"OK"}));
             }
+			else if(runningConfig.started && data.type=="anzeige"){
+				runningConfig.anzeigen.push({socket:socket});
+				socket.emit("authConfirm",JSON.stringify({status:"OK"}));
+				
+			}
             else{
                 console.error("Socket Auth Error:");
                 console.error(runningConfig.started,data.type,data.secret,"==",runningConfig.gameMaster.socketSecret);
@@ -327,7 +378,8 @@ function startSocket()
                 var rf = runningConfig.referees[data.referee];
                 var bv = Object.assign({},rf.actualGame);
                 runningConfig.competitions[rf.actualGame.competition].startGame(rf.actualGame.id);
-                rf.actualGame = runningConfig.competitions[rf.actualGame.competition].getRemainingGames.find((g)=>{return g.id==bv.id});
+                rf.actualGame = runningConfig.competitions[rf.actualGame.competition].getGamesThisLayer.find((g)=>{return g.id==bv.id});
+                
                 rf.actualGame.competition=bv.competition;
                 var mer = runningConfig.referees[data.referee];
                 if(mer.socket){
@@ -353,6 +405,35 @@ function startSocket()
             }
         });
 
+        socket.on("addPoint",(msg)=>{
+            var data = JSON.tryParse(msg);
+            console.log(data);
+            runningConfig.competitions[data.competition].gamePoint(data.id,data.team);
+            runningConfig.referees.forEach((rf)=>{if(rf.socket&&rf.actualGame.id==data.id)rf.socket.emit("addPoint",JSON.stringify({game:data.id,team:data.team}));});
+            if(runningConfig.gameMaster.socket)
+                runningConfig.gameMaster.socket.emit("addPoint",JSON.stringify({competition:data.competition,game:data.id,team:data.team,referee:runningConfig.referees.indexOf(runningConfig.referees.find((r)=>{return r.actualGame&&r.actualGame.id==data.id;}))}));
+			runningConfig.anzeigen.forEach(function(anz){
+				if(anz.socket != null){
+					anz.socket.emit("addPoint",JSON.stringify({game:data.id,team:data.team}));
+				}
+			});
+		});
+		
+		socket.on("remPoint",(msg)=>{
+            var data = JSON.tryParse(msg);
+            console.log(data);
+            runningConfig.competitions[data.competition].gameRemovePoint(data.id,data.team);
+            runningConfig.referees.forEach((rf)=>{if(rf.socket&&rf.actualGame.id==data.id)rf.socket.emit("remPoint",JSON.stringify({game:data.id,team:data.team}));});
+            if(runningConfig.gameMaster.socket)
+                runningConfig.gameMaster.socket.emit("remPoint",JSON.stringify({competition:data.competition,game:data.id,team:data.team,referee:runningConfig.referees.indexOf(runningConfig.referees.find((r)=>{return r.actualGame&&r.actualGame.id==data.id;}))}));
+        
+			runningConfig.anzeigen.forEach(function(anz){
+				if(anz.socket != null){
+					anz.socket.emit("remPoint",JSON.stringify({game:data.id,team:data.team}));
+				}
+			});
+		});
+
         socket.on("endRound",(msg)=>{
             var data = JSON.tryParse(msg);
             if(runningConfig.competitions[data.competition]){
@@ -371,6 +452,8 @@ function startSocket()
             runningConfig.gameMaster.socket.id==socket.id?runningConfig.gameMaster.socket=null:false;
             var ref = runningConfig.referees.find((rf)=>{return rf.socket&&rf.socket.id==socket.id;});
             if(ref)ref.socket=null;
+			var anzt = runningConfig.anzeigen.find(function(anz){return anz.socket.id==socket.id});
+			if(anzt)runningConfig.anzeigen.splice(runningConfig.anzeigen.indexOf(anzt),1);
         });
     });
 }

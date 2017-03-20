@@ -2,5 +2,6 @@
     "port":8080,
     "staticFiles":[],
     "masterFile":"htdocs/res/master/master.html",
-    "refereeFile":"htdocs/res/referee/referee.html"
+    "refereeFile":"htdocs/res/referee/referee.html",
+	"anzeigenFile":"htdocs/res/anzeige/anzeige.html"
 }

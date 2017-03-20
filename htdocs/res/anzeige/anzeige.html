@@ -1,0 +1,60 @@
+<!Doctype html>
+<html ng-app="anzeigeAPP">
+    <head>
+        <title>Anzeige</title>
+        <link rel="stylesheet" type="text/css" href="/cdn/res/bootstrap.css"/>
+        <link rel="stylesheet" type="text/css" href="/cdn/res/master/style.css"/>
+        <script type="text/javascript" src="/cdn/res/angular-bundle.js"></script>
+        <script type="text/javascript" src="/cdn/res/bootstrap.js"></script>
+        <script type="text/javascript" src="/cdn/res/master/app.js"></script>
+    </head>
+    <body ng-controller="mainCtrl" ng-cloak>
+        
+        <div class="container">
+            <div class="page-header">
+                <h1>Dashboard<small> Turniersystem</small></h1>
+            </div>
+            
+            <h3>Laufende Spiele</h3>
+            <ul class="nav nav-tabs">
+                <li role="presentation" class="tab" ng-repeat="tab in config.referees track by $index" ng-class="{'active':activeRefereeTab==tab}" ng-click="setActiveTab(tab);"><a class="tab-link">Schiedsrichter #{{tab.id}}</a></li>
+            </ul>
+
+            <h3>Turniere:</h3>
+            <ul class="nav nav-tabs">
+                <li role="presentation" class="tab" ng-repeat="tab in config.competitions track by $index" ng-class="{'active':activeCompetitionsTab==tab}" ng-click="setActiveTab2(tab);"><a class="tab-link">{{tab.name}}</a></li>
+            </ul>
+            <div class="container pt20">          
+                
+                <div class="row">
+                    <div class="col-md-4">
+                        <b>Teams:</b><br/>
+                        <table class="table">
+                            <thead>
+                                <tr ng-if="activeCompetitionsTab.layer.layer==0"><th>Gruppe</th><th>Teams:</th></tr>
+                                <tr ng-if="activeCompetitionsTab.layer.layer!=0"><th>Team</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-if="activeCompetitionsTab.layer.layer==0" ng-repeat="bbgroup in activeCompetitionsTab.groups"><td>{{group.name}}</td><td><ul><li ng-repeat="team in group.teams">{{team.name}}</li></ul></td></tr>
+                                <tr ng-if="activeCompetitionsTab.layer.layer!=0" ng-repeat="team in activeCompetitionsTab.teams"><td>{{team.name}}</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-8">
+                        <b>Spiele:</b><br/>
+                        <table class="table">
+                            <thead>
+                                <tr><th></th><th>Team1</th><th>Team2</th><th>Punktestand</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="game in activeCompetitionsTab.games track by $index" ng-class="{'finished':game.finished,'running':game.started&&game.finished==false}"><td>{{getTeamGroup(game.Team1.id).name}}</td><td>{{game.Team1.name}}</td><td>{{game.Team2.name}}</td><td><b>{{game.Points[0]}}</b> : <b>{{game.Points[1]}}</b></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        #@KEYPLACE@#
+    </body>
+</html>
