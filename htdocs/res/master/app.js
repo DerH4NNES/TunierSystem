@@ -29,7 +29,7 @@ app.controller("mainCtrl",function($scope,$http){
             var data = JSON.tryParse(msg);
             if(data.status=="OK"){
                 console.log("Auth Confirmed. Socket active");
-                
+                new QRCode(document.getElementById("qrReferee"),$scope.combineRefUrl($scope.activeRefereeTab.secret));
             }
             else{
                 alert("Konnte nicht Authentifizieren!\nDieser Versuch wird gemeldet!");
@@ -71,10 +71,29 @@ app.controller("mainCtrl",function($scope,$http){
             }
         });
 
+        $scope.socket.on("endGameDone",(msg)=>{
+            var data = JSON.tryParse(msg);
+            if(data){
+                $scope.config.referees.forEach(function(r){if(r.actualGame&&r.actualGame.id==data.game)r.actualGame=null;});
+                $scope.config.competitions.forEach(function(c){
+                    c.games.forEach(function(g){
+                        if(g.id==data.game)g.finished=true;
+                    });
+                });
+                //$scope.activeCompetitionsTab.games.forEach(function(g){if(g.id==data.game)g.finished=true;});
+                if(!$scope.$$phase)$scope.$apply();
+            }
+        });
+
         $scope.socket.emit("auth",JSON.stringify({
             "type":"master",
             "secret":ss
         }));
+    };
+
+    $scope.combineRefUrl = function(rs)
+    {
+        return "http://"+document.location.hostname+"/referee/"+rs;
     };
 
     $scope.getTeamGroup = function(tid)
@@ -90,6 +109,8 @@ app.controller("mainCtrl",function($scope,$http){
     $scope.setActiveTab = function(t)
     {
         $scope.activeRefereeTab = t;
+        document.getElementById("qrReferee").innerHTML ="";
+        new QRCode(document.getElementById("qrReferee"),$scope.combineRefUrl($scope.activeRefereeTab.secret));
     };
     $scope.setActiveTab2 = function(t)
     {
@@ -99,6 +120,11 @@ app.controller("mainCtrl",function($scope,$http){
     $scope.gamesToPlayLeft = function()
     {
         if($scope.activeCompetitionsTab.games)return $scope.activeCompetitionsTab.games.find(function(g){return g.finished==false;});
+    };
+
+    $scope.stopGame = function(ref)
+    {
+        $scope.socket.emit("endGame",JSON.stringify({competition:$scope.activeRefereeTab.actualGame.competition,game:$scope.activeRefereeTab.actualGame.id}));
     };
 
     $scope.endRound =function()

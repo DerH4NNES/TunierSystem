@@ -1,10 +1,13 @@
 <!Doctype html>
 <html ng-app="masterApp">
     <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>GameMaster</title>
         <link rel="stylesheet" type="text/css" href="/cdn/res/bootstrap.css"/>
         <link rel="stylesheet" type="text/css" href="/cdn/res/master/style.css"/>
         <script type="text/javascript" src="/cdn/res/angular-bundle.js"></script>
+        <script type="text/javascript" src="/cdn/res/qrcode.min.js"></script>
         <script type="text/javascript" src="/cdn/res/bootstrap.js"></script>
         <script type="text/javascript" src="/cdn/res/master/app.js"></script>
     </head>
@@ -66,7 +69,10 @@
                     <button type="button" class="btn btn-primary btn-lg btn-block" ng-click="getNewGameForReferee();">Neues Spiel Zuweisen</button>
                     <br/><br/>
                 </div>
-
+                <div class="refUrl">
+                    <div id="qrReferee"></div>
+                    <span><a href="/referee/{{activeRefereeTab.secret}}">{{combineRefUrl(activeRefereeTab.secret)}}</a></span>
+                </div>
             </div>
 
             <h3>Turniere:</h3>

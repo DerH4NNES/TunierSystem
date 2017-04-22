@@ -1,0 +1,25 @@
+.pt20
+{
+    padding-top:20px;
+}
+
+table.table tr.finished
+{
+    background-color: #2ecc71;
+}
+
+table.table tr.running
+{
+    background-color: #3498db;
+}
+
+.tab-link
+{
+    cursor:pointer;
+}
+
+.btextp
+{
+    font-size:30px;
+    font-weight:bold;
+}

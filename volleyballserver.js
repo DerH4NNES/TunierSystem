@@ -196,7 +196,7 @@ function registerRoutes()
                                 httpForbidden(res);
                             }
                             else{
-                                runningConfig.referees.forEach((rf)=>{rf.refereeHTML=data2;});
+                                runningConfig.referees.forEach((rf)=>{rf.refereeHTML=data2.toString();});
                                 //runningConfig.gameMaster.masterHTML=data;
 								fs.readFile(config.anzeigenFile,(erro2,datao2)=>{
 								if(erro2){
@@ -270,13 +270,45 @@ function registerRoutes()
             httpForbidden(res);
         }
     });
+
+    app.get("/referee/:key",(req,res)=>{
+        if(runningConfig.started){
+            if(req.params.key){
+                var found = false;
+                //console.log(runningConfig.referees);
+                runningConfig.referees.forEach((referee,ind)=>{
+                    if(referee.secret == req.params.key)
+                    {
+                        found=true;
+                        referee.socketSecret = md5(Date.now()+Math.random());
+                        res.status(200);
+                        res.setHeader("Content-Type","text/html");
+                        res.send(referee.refereeHTML.replace("#@KEYPLACE@#","<!--#"+referee.secret+"#-->"));
+                        res.end();
+                    }
+                    if(ind==runningConfig.referees.length-1&&!found){
+                        console.error("REFEREE ERROR: wrong key");
+                        httpForbidden(res);
+                    }
+                });
+            }
+            else{
+                console.error("REFEREE ERROR: no Key");
+                httpForbidden(res);
+            }
+        }
+        else{
+            console.error("REFEREE ERROR: game not started");
+            httpForbidden(res);
+        }
+    });
     app.get("/api/master/:key/data",(req,res)=>{
         if(runningConfig.started){
             if(req.params.key){
                 if(runningConfig.gameMaster.secret == req.params.key){
                     var toSend = {referees:[]};
                     async.each(runningConfig.referees,(ref,_next)=>{
-                        toSend.referees.push({"id":ref.id,"actualGame":ref.actualGame});
+                        toSend.referees.push({"id":ref.id,"actualGame":ref.actualGame,"secret":ref.secret});
                         _next();
                     },(err)=>{
                         if(err){
@@ -322,6 +354,33 @@ function registerRoutes()
             httpForbidden(res);
         }
     });
+
+    app.get("/api/referee/:key/data",(req,res)=>{
+        if(runningConfig.started){
+            if(req.params.key){
+                var ref = runningConfig.referees.find((r)=>{return r.secret == req.params.key;});
+                if(ref){
+                    var toSend = {id:ref.id,actualGame:ref.actualGame,socketSecret:ref.socketSecret};
+                    res.status(200);
+                    res.setHeader("Content-Type","application/json");
+                    res.send(JSON.stringify(toSend));
+                }
+                else{
+                    console.error("REFEREE API: wrong key");
+                    httpForbidden(res);
+                }
+            }
+            else{
+                console.error("REFEREE API: no key");
+                httpForbidden(res);
+            }
+        }
+        else{
+            console.error("REFEREE API: game not started");
+            httpForbidden(res);
+        }
+    });
+
 	app.get("/api/anzeige/data",
 		function(req,res){
 			if(runningConfig.started){
@@ -370,13 +429,14 @@ function startSocket()
         
         socket.on("auth",(msg)=>{
             var data = JSON.tryParse(msg);var tref = null;
-            
+            /*tref=runningConfig.referees.find((rf)=>{return rf.socketSecret==data.secret});
+            console.log(tref);*/
             if(runningConfig.started&&data.type=="master"&&runningConfig.gameMaster.socket==null&&data.secret==runningConfig.gameMaster.socketSecret){
                 runningConfig.gameMaster.socket=socket;
                 console.log("GameMaster Auth Confirm");
                 socket.emit("authConfirm",JSON.stringify({"status":"OK"}));
             }
-            else if(runningConfig.started&&data.type=="referee"&&(tref=runningConfig.referees.find((rf)=>{rf.socketSecret==data.secret}))){
+            else if(runningConfig.started&&data.type=="referee"&&(tref=runningConfig.referees.find((rf)=>{return rf.socketSecret==data.secret}))){
                 tref.socket = socket;
                 socket.emit("authConfirm",JSON.stringify({"status":"OK"}));
             }
@@ -402,10 +462,10 @@ function startSocket()
                         remG.competition=data.competition;
                         runningConfig.referees[data.referee].actualGame=remG;
                         if(runningConfig.referees[data.referee].socket){
-                            runningConfig.referees[data.referee].socket.emit("gameSet",JSON.stringify({"status":"OK"}));
+                            runningConfig.referees[data.referee].socket.emit("gameSet",JSON.stringify({"game":runningConfig.referees[data.referee].actualGame,"referee":runningConfig.referees.indexOf(runningConfig.referees[data.referee]),"status":"OK"}));
                         }
                         if(runningConfig.gameMaster.socket){
-                            runningConfig.gameMaster.socket.emit("gameSet",JSON.stringify({"status":"OK"}));
+                            runningConfig.gameMaster.socket.emit("gameSet",JSON.stringify({"game":remG.id,"referee":runningConfig.referees.indexOf(runningConfig.referees[data.referee]),"status":"OK"}));
                         }
                     }
                 }
@@ -414,16 +474,20 @@ function startSocket()
             else if(data.type=="referee"){
                 var mer = runningConfig.referees.find((r)=>{return r.socket&&r.socket.id==socket.id;});
                 if(mer.actualGame==null){
-                    var remG = runningConfig.competitions[data.competition].getRandomRemainingGame;
+                    var rndC = randomIntFromInterval(0,runningConfig.competitions.length-1);
+                    var remG = runningConfig.competitions[rndC].getRandomRemainingGame;
                     if(remG){
-                        remG.competition=data.competition;
+                        remG.competition=rndC;
                         mer.actualGame=remG;
                         if(mer.socket){
-                            mer.socket.emit("gameSet",JSON.stringify({"status":"OK"}));
+                            mer.socket.emit("gameSet",JSON.stringify({"game":mer.actualGame,"referee":runningConfig.referees.indexOf(mer),"status":"OK"}));
                         }
                         if(runningConfig.gameMaster.socket){
-                            runningConfig.gameMaster.socket.emit("gameSet",JSON.stringify({"status":"OK"}));
+                            runningConfig.gameMaster.socket.emit("gameSet",JSON.stringify({"game":remG.id,"referee":runningConfig.referees.indexOf(mer),"status":"OK"}));
                         }
+                    }
+                    else{
+                        mer.socket.emit("gameSet",JSON.stringify({"status":"NOLEFT"}));
                     }
                 }
             }
@@ -440,21 +504,23 @@ function startSocket()
                 rf.actualGame.competition=bv.competition;
                 var mer = runningConfig.referees[data.referee];
                 if(mer.socket){
-                    mer.socket.emit("gameSet",JSON.stringify({"status":"OK"}));
+                    mer.socket.emit("gameStart",JSON.stringify({"game":rf.actualGame,"status":"OK"}));
                 }
                 if(runningConfig.gameMaster.socket){
                     runningConfig.gameMaster.socket.emit("gameSet",JSON.stringify({"status":"OK"}));
                 }
             }
-            else if(type=="referee"){
+            else if(data.type=="referee"){
                 var rf = runningConfig.referees.find((r)=>{return r.socket.id==socket.id});
                 var bv = Object.assign({},rf.actualGame);
+                console.log(rf);
                 runningConfig.competitions[rf.actualGame.competition].startGame(rf.actualGame.id);
-                rf.actualGame = runningConfig.competitions[rf.actualGame.competition].getRemainingGames.find((g)=>{return g.id==bv.id});
+                rf.actualGame = runningConfig.competitions[rf.actualGame.competition].getGamesThisLayer.find((g)=>{return g.id==bv.id});
+                console.log(rf.actualGame);
                 rf.actualGame.competition=bv.competition;
                 var mer = rf;
                 if(mer.socket){
-                    mer.socket.emit("gameSet",JSON.stringify({"status":"OK"}));
+                    mer.socket.emit("gameStart",JSON.stringify({"game":rf.actualGame,"status":"OK"}));
                 }
                 if(runningConfig.gameMaster.socket){
                     runningConfig.gameMaster.socket.emit("gameSet",JSON.stringify({"status":"OK"}));
@@ -491,6 +557,31 @@ function startSocket()
 			});
 		});
 
+        socket.on("endGame",(msg)=>{
+            var data = JSON.tryParse(msg);
+            console.log(data);
+            if(runningConfig.competitions[data.competition]){
+                var game = runningConfig.competitions[data.competition].getGamesThisLayer.find((g)=>{return g.id == data.game});
+                if(game){
+                    game.finished=true;
+                    if(runningConfig.gameMaster.socket)runningConfig.gameMaster.socket.emit("endGameDone",JSON.stringify({competition:data.competition,game:data.game,status:"OK"}));
+                    runningConfig.referees.forEach((r)=>{
+                        if(r.socket)
+                            r.socket.emit("endGameDone",JSON.stringify({competition:data.competition,game:data.game,status:"OK"}));
+                    });
+                    runningConfig.anzeigen.forEach((r)=>{
+                        if(r.socket)
+                            r.socket.emit("endGameDone",JSON.stringify({competition:data.competition,game:data.game,status:"OK"}));
+                    });
+                    //socket.emit("endGameDone",JSON.stringify({competition:data.competition,game:data.game,status:"OK"}));
+                    runningConfig.referees.forEach((r)=>{r.actualGame=null;});
+                }
+            }
+            else{
+                socket.emit("endGameDone",JSON.stringify({status:"ERROR"}));
+            }
+        });
+
         socket.on("endRound",(msg)=>{
             var data = JSON.tryParse(msg);
             if(runningConfig.competitions[data.competition]){
@@ -513,6 +604,11 @@ function startSocket()
 			if(anzt)runningConfig.anzeigen.splice(runningConfig.anzeigen.indexOf(anzt),1);
         });
     });
+}
+
+function randomIntFromInterval(min,max)
+{
+    return Math.floor(Math.random()*(max-min+1)+min);
 }
 
 function getClientBySocket(socket)

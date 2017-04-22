@@ -17,15 +17,15 @@
             <h3>Zugewiesenes Spiel</h3>
             <div class="container pt20">
                 
-                <div ng-if="activeRefereeTab.actualGame">
-                    <div ng-if="activeRefereeTab.actualGame.started">
+                <div ng-if="config.actualGame">
+                    <div ng-if="config.actualGame.started">
                         <div class="row">
-                            <div class="col-md-6 btextp">{{activeRefereeTab.actualGame.Team1.name}}: {{activeRefereeTab.actualGame.Points[0]}}</div>
-                            <div class="col-md-6 btextp">{{activeRefereeTab.actualGame.Team2.name}}: {{activeRefereeTab.actualGame.Points[1]}}</div>
+                            <div class="col-md-6 btextp">{{config.actualGame.Team1.name}}: {{config.actualGame.Points[0]}}</div>
+                            <div class="col-md-6 btextp">{{config.actualGame.Team2.name}}: {{config.actualGame.Points[1]}}</div>
                         </div>
                         <div class="row">
                             <div class="col-md-12">
-                                <h3 style="text-align:center;">{{getTimestampDisplay(activeRefereeTab.actualGame.timestamp)}}</h3>
+                                <h3 style="text-align:center;">{{getTimestampDisplay(config.actualGame.timestamp)}}</h3>
                             </div>
                         </div>
                         <div class="row">
@@ -48,17 +48,17 @@
                             </div>
                         </div>
                     </div>
-                    <div ng-if="!activeRefereeTab.actualGame.started">
+                    <div ng-if="!config.actualGame.started">
                         <div class="row">
-                            <div class="col-md-6 btextp">{{activeRefereeTab.actualGame.Team1.name}}: {{activeRefereeTab.actualGame.Points[0]}}</div>
-                            <div class="col-md-6 btextp">{{activeRefereeTab.actualGame.Team2.name}}: {{activeRefereeTab.actualGame.Points[1]}}</div>
+                            <div class="col-md-6 btextp">{{config.actualGame.Team1.name}}: {{config.actualGame.Points[0]}}</div>
+                            <div class="col-md-6 btextp">{{config.actualGame.Team2.name}}: {{config.actualGame.Points[1]}}</div>
                         </div>
                         <br/><br/>
                         <button type="button" class="btn btn-primary btn-lg btn-block" ng-click="startRefereeGame();">Starten</button>
                         <br/><br/>
                     </div>
                 </div>
-                <div ng-if="!activeRefereeTab.actualGame">
+                <div ng-if="!config.actualGame">
                     <br/><br/>
                     <button type="button" class="btn btn-primary btn-lg btn-block" ng-click="getNewGameForReferee();">Neues Spiel Zuweisen</button>
                     <br/><br/>

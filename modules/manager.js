@@ -246,12 +246,13 @@ class storageController {
 	}
 	get getRemainingGamesNonBlocked(){
 		console.log(this.games);
-		return this.games[this.currentLayer].filter((t,ind)=>{console.log("########",ind,"#########");console.log(t);return t.finished==false&&t.started==false&&t.blocked==false;});
+		return this.games[this.currentLayer].filter((t,ind)=>{return t.finished==false&&t.started==false&&t.blocked==false;});
 	}
 	
 	get getRandomRemainingGame()
 	{
 		var rg = this.getRemainingGamesNonBlocked;
+		if(rg.length==0)return null;
 		console.log(rg);
 		var g = rg[0];
 		g.blocked=true;
