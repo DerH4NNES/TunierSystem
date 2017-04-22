@@ -1,0 +1,111 @@
+<!Doctype html>
+<html ng-app="refereeApp">
+    <head>
+        <title>Schiedsrichter</title>
+        <link rel="stylesheet" type="text/css" href="/cdn/res/bootstrap.css"/>
+        <link rel="stylesheet" type="text/css" href="/cdn/res/referee/style.css"/>
+        <script type="text/javascript" src="/cdn/res/angular-bundle.js"></script>
+        <script type="text/javascript" src="/cdn/res/bootstrap.js"></script>
+        <script type="text/javascript" src="/cdn/res/referee/app.js"></script>
+    </head>
+    <body ng-controller="mainCtrl" ng-cloak>
+        
+        <div class="container">
+            <div class="page-header">
+                <h1>Schiedsrichter<small> Turnier Management</small></h1>
+            </div>
+            <h3>Zugewiesenes Spiel</h3>
+            <div class="container pt20">
+                
+                <div ng-if="activeRefereeTab.actualGame">
+                    <div ng-if="activeRefereeTab.actualGame.started">
+                        <div class="row">
+                            <div class="col-md-6 btextp">{{activeRefereeTab.actualGame.Team1.name}}: {{activeRefereeTab.actualGame.Points[0]}}</div>
+                            <div class="col-md-6 btextp">{{activeRefereeTab.actualGame.Team2.name}}: {{activeRefereeTab.actualGame.Points[1]}}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h3 style="text-align:center;">{{getTimestampDisplay(activeRefereeTab.actualGame.timestamp)}}</h3>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <br/><br/>
+                                <button type="button" class="btn btn-primary btn-lg btn-block" ng-click="addPointT1();">Punkt</button>
+                                <button type="button" class="btn btn-primary btn-block" ng-click="remPointT1();">Punkt abziehen</button>
+                                <br/>
+                            </div>
+                            <div class="col-md-6">
+                                <br/><br/>
+                                <button type="button" class="btn btn-primary btn-lg btn-block" ng-click="addPointT2();">Punkt</button>
+                                <button type="button" class="btn btn-primary btn-block" ng-click="remPointT2();">Punkt abziehen</button>
+                                <br/>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <button type="button" class="btn btn-primary btn-lg btn-block" ng-click="stopGame();">Spiel beenden</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div ng-if="!activeRefereeTab.actualGame.started">
+                        <div class="row">
+                            <div class="col-md-6 btextp">{{activeRefereeTab.actualGame.Team1.name}}: {{activeRefereeTab.actualGame.Points[0]}}</div>
+                            <div class="col-md-6 btextp">{{activeRefereeTab.actualGame.Team2.name}}: {{activeRefereeTab.actualGame.Points[1]}}</div>
+                        </div>
+                        <br/><br/>
+                        <button type="button" class="btn btn-primary btn-lg btn-block" ng-click="startRefereeGame();">Starten</button>
+                        <br/><br/>
+                    </div>
+                </div>
+                <div ng-if="!activeRefereeTab.actualGame">
+                    <br/><br/>
+                    <button type="button" class="btn btn-primary btn-lg btn-block" ng-click="getNewGameForReferee();">Neues Spiel Zuweisen</button>
+                    <br/><br/>
+                </div>
+
+            </div>
+
+            <!--<h3>Turniere:</h3>
+            <ul class="nav nav-tabs">
+                <li role="presentation" class="tab" ng-repeat="tab in config.competitions track by $index" ng-class="{'active':activeCompetitionsTab==tab}" ng-click="setActiveTab2(tab);"><a class="tab-link">{{tab.name}}</a></li>
+            </ul>
+            <div class="container pt20">
+                
+                <h4><b>{{activeCompetitionsTab.name}}:</b> - {{activeCompetitionsTab.layer.layerName}}</h4><br/>
+                <br/>
+                    <button type="button" class="btn btn-primary btn-lg btn-block" ng-disabled="gamesToPlayLeft()" ng-click="endRound();">Ebene Beenden</button>
+                <br/>
+                
+                <div class="row">
+                    <div class="col-md-4">
+                        <b>Teams:</b><br/>
+                        <table class="table">
+                            <thead>
+                                <tr ng-if="activeCompetitionsTab.layer.layer==0"><th>Gruppe</th><th>Teams:</th></tr>
+                                <tr ng-if="activeCompetitionsTab.layer.layer!=0"><th>Team</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-if="activeCompetitionsTab.layer.layer==0" ng-repeat="group in activeCompetitionsTab.groups"><td>{{group.name}}</td><td><ul><li ng-repeat="team in group.teams">{{team.name}}</li></ul></td></tr>
+                                <tr ng-if="activeCompetitionsTab.layer.layer!=0" ng-repeat="team in activeCompetitionsTab.teams"><td>{{team.name}}</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-8">
+                        <b>Spiele:</b><br/>
+                        <table class="table">
+                            <thead>
+                                <tr><th></th><th>Team1</th><th>Team2</th><th>Punktestand</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="game in activeCompetitionsTab.games track by $index" ng-class="{'finished':game.finished,'running':game.started&&game.finished==false}"><td>{{getTeamGroup(game.Team1.id).name}}</td><td>{{game.Team1.name}}</td><td>{{game.Team2.name}}</td><td><b>{{game.Points[0]}}</b> : <b>{{game.Points[1]}}</b></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>-->
+        </div>
+        #@KEYPLACE@#
+    </body>
+</html>

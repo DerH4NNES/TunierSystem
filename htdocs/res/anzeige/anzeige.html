@@ -1,12 +1,12 @@
 <!Doctype html>
-<html ng-app="anzeigeAPP">
+<html ng-app="anzeigeApp">
     <head>
-        <title>Anzeige</title>
+        <title>TurnierSystem 1.0</title>
         <link rel="stylesheet" type="text/css" href="/cdn/res/bootstrap.css"/>
-        <link rel="stylesheet" type="text/css" href="/cdn/res/master/style.css"/>
+        <link rel="stylesheet" type="text/css" href="/cdn/res/anzeige/style.css"/>
         <script type="text/javascript" src="/cdn/res/angular-bundle.js"></script>
         <script type="text/javascript" src="/cdn/res/bootstrap.js"></script>
-        <script type="text/javascript" src="/cdn/res/master/app.js"></script>
+        <script type="text/javascript" src="/cdn/res/anzeige/app.js"></script>
     </head>
     <body ng-controller="mainCtrl" ng-cloak>
         
@@ -35,11 +35,7 @@
                                 <tr ng-if="activeCompetitionsTab.layer.layer!=0"><th>Team</th></tr>
                             </thead>
                             <tbody>
-<<<<<<< HEAD
                                 <tr ng-if="activeCompetitionsTab.layer.layer==0" ng-repeat="bbgroup in activeCompetitionsTab.groups"><td>{{group.name}}</td><td><ul><li ng-repeat="team in group.teams">{{team.name}}</li></ul></td></tr>
-=======
-                                <tr ng-if="activeCompetitionsTab.layer.layer==0" ng-repeat="group in activeCompetitionsTab.groups"><td>{{group.name}}</td><td><ul><li ng-repeat="team in group.teams">{{team.name}}</li></ul></td></tr>
->>>>>>> 92bfe2ba3ee44c30495bd196089d8b0da81adbe4
                                 <tr ng-if="activeCompetitionsTab.layer.layer!=0" ng-repeat="team in activeCompetitionsTab.teams"><td>{{team.name}}</td></tr>
                             </tbody>
                         </table>

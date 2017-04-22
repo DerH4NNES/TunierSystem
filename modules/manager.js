@@ -19,7 +19,8 @@
 const md5 = require("md5");
 
 class storageController {
-	constructor(JSONInput) {
+	constructor(JSONInput,dumpData) {
+		if(JSONInput==null){return this.doImportDump(dumpData);}
 		this.JSONObject = JSONInput;
 		this.currentLayer = 0;
 		this.games = [];
@@ -93,6 +94,20 @@ class storageController {
 		this.games[0] = tempgames;
 		//console.log(this.group
 	}
+
+	doImportDump(dumpData)
+	{
+		console.log(dumpData);
+		console.log("###");
+		console.log(dumpData.groups[2].teams[0]);
+		console.log("###");
+		console.log(dumpData.groups[0].teams[0].name="XYZ");
+		console.log(dumpData.JSONObject.teams);
+		for(var key in dumpData){
+			this[key] = dumpData[key];
+		}
+	}
+
 	startGame(gameID){
 		var game = this.games[this.currentLayer].find((g)=>{return g.id==gameID;});
 		if(!game.finished){

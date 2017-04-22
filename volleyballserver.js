@@ -10,7 +10,7 @@ const io = require("socket.io")(http);
 const async = require("async");
 const bodyparser = require("body-parser");
 const md5 = require("md5");
-
+const cycler = require("cycler");
 const manager = require("./modules/manager.js");
 
 process.chdir(__dirname);
@@ -21,6 +21,17 @@ var runningConfig = {
     started:false,
 	anzeige: {html:""}
 };
+
+process.on('SIGINT', exitHandler);
+process.on("uncaughtException",exitHandler);
+//process.on("exit",exitHandler);
+function exitHandler(err){
+    if(err){
+        console.error(err);
+    }
+    //fs.writeFileSync("dump.dat",JSON.stringify(cycler.decycle(runningConfig,null)));
+    process.exit();
+}
 
 function init()
 {
@@ -82,12 +93,52 @@ function init()
     });
 }
 
+function importDump(_goAhead)
+{
+    fs.readFile("dump.dat",(err,file)=>{
+        if(err){
+            _goAhead(null);
+        }
+        else{
+            try{
+                var obj = JSON.parse(cycler.retrocycle(file,{manager:manager}));
+                console.log(obj);
+            }
+            catch(ex){
+                return _goAhead();
+            }
+            
+            runningConfig = obj;
+            if(runningConfig.anzeige){runningConfig.anzeige.html=runningConfig.anzeige.html;}
+            if(runningConfig.gameMaster){runningConfig.gameMaster.html=runningConfig.gameMaster.masterHTML;}
+            if(runningConfig.referees){
+                runningConfig.referees.forEach((r)=>{
+                    r.refereeHTML=r.refereeHTML;
+                });
+            }
+            if(runningConfig.competitions){
+                for(var i=0; i<runningConfig.competitions.length;i++){
+                    runningConfig.competitions[i] = new manager(null,runningConfig.competitions[i]);
+                }
+            }
+            runningConfig.gameMaster.socket=null;
+            runningConfig.anzeigen.forEach((a)=>{a.socket=null;});
+            runningConfig.referees.forEach((r)=>{r.socket=null;});
+            _goAhead(runningConfig.gameMaster.secret);
+        }
+    });
+}
+
 
 init();
 
 
 function registerRoutes()
 {
+    app.get("/",(req,res)=>{
+        if(runningConfig.started==false)res.redirect("/cdn/init.html");
+        else res.redirect("/anzeige");
+    });
     app.get("/init",(req,res)=>{
         if(runningConfig.started==false){
             res.redirect("/cdn/init.html");
@@ -124,6 +175,7 @@ function registerRoutes()
                     masterHTML:""
                 };
                 runningConfig.referees=[];
+                runningConfig.anzeigen=[];
                 for(var i=0; i<req.body.places;i++)runningConfig.referees.push({
                     id:i,
                     secret:md5(Date.now()+Math.random()),
@@ -137,7 +189,7 @@ function registerRoutes()
                         httpForbidden(res);
                     }
                     else{
-                        runningConfig.gameMaster.masterHTML=data;
+                        runningConfig.gameMaster.masterHTML=data.toString();
                         fs.readFile(config.refereeFile,(err2,data2)=>{
                             if(err2){
                                 console.error("Blocking INIT - File2 not found!");
@@ -152,7 +204,7 @@ function registerRoutes()
 									httpForbidden(res);
 								}
 								else{
-									runningConfig.anzeige.html=datao2;
+									runningConfig.anzeige.html=datao2.toString();
 									//runningConfig.gameMaster.masterHTML=data;
 									console.log("Game Started. Turniere: "+runningConfig.competitions.length);
 									runningConfig.started=true;
@@ -296,7 +348,12 @@ function registerRoutes()
 		}
 	);
 
-
+    importDump((key)=>{
+        if(key){
+            console.log("Imported Dump Data...");
+            console.log("MasterKey: "+key);
+        }
+    });
 }
 
 function httpForbidden(res)
@@ -449,7 +506,7 @@ function startSocket()
         socket.on("disconnect",()=>{
             //console.log("disconnect");
             if(!runningConfig.gameMaster)return;
-            runningConfig.gameMaster.socket.id==socket.id?runningConfig.gameMaster.socket=null:false;
+            if(runningConfig.gameMaster.socket)runningConfig.gameMaster.socket.id==socket.id?runningConfig.gameMaster.socket=null:false;
             var ref = runningConfig.referees.find((rf)=>{return rf.socket&&rf.socket.id==socket.id;});
             if(ref)ref.socket=null;
 			var anzt = runningConfig.anzeigen.find(function(anz){return anz.socket.id==socket.id});

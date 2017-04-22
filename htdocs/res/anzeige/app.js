@@ -1,15 +1,10 @@
-<<<<<<< HEAD
-var app = angular.module("anzeigeAPP",[]);
-=======
-var app = angular.module("masterApp",[]);
->>>>>>> 92bfe2ba3ee44c30495bd196089d8b0da81adbe4
+var app = angular.module("anzeigeApp",[]);
 
 app.controller("mainCtrl",function($scope,$http){
     $scope.key = "";
     $scope.config = {};
     $scope.activeRefereeTab={};
     $scope.activeCompetitionsTab={};
-<<<<<<< HEAD
 	$scope.competitions = [];
 	$scope.wiedumoechtest = function(){
 		$scope.socket.disconnect();
@@ -28,7 +23,7 @@ app.controller("mainCtrl",function($scope,$http){
     $scope.initSocket = function(ss)
     {
         $scope.socket = io();
-		$scope.socket.emit("auth",JSON.stringify({"type":"anzeige"});
+		$scope.socket.emit("auth",JSON.stringify({"type":"anzeige"}));
 		$scope.authTimeout = setTimeout(($scope.wiedumoechtest).bind(this),5000);
 		$scope.socket.on("authConfirm",function(msg){
 			var data = JSON.tryParse(msg);
@@ -65,7 +60,6 @@ app.controller("mainCtrl",function($scope,$http){
 			//if($scope.config.competitions[data.competition].layer.layer==0)$scope.config.competitions[data.competition].groups.find(function(g){console.log(g);return g.games.find(function(ga){if(ga.id==data.game){ga.Points[data.team]++;return true;}else return false;});});
 		}
 	});
-=======
 
     $scope.onload = function()
     {
@@ -176,7 +170,6 @@ app.controller("mainCtrl",function($scope,$http){
     $scope.onload();
     setTimeout(function(){if(!$scope.$$phase)$scope.$apply();},1000);
 
->>>>>>> 92bfe2ba3ee44c30495bd196089d8b0da81adbe4
 });
 
 JSON.tryParse = function(str){
