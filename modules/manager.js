@@ -125,7 +125,7 @@ class storageController {
 	}
 
 	finishLayer(currentLayer){
-		if (!LayerFree) {
+		if (!this.LayerFree) {
 			//Checke ob alle Spiele gespielt wurden
 			for (var i = 0; i < this.games[this.currentLayer].length; i++) {
 				if (!this.games[this.currentLayer][i].finished)
