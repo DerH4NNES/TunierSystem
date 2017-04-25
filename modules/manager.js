@@ -136,6 +136,9 @@ class storageController {
 		else {
 			return false;
 		}
+		if(this.games[this.currentLayer].length <= 1){
+			return {competitionEnd: true, winner: this.games[this.currentLayer].points[0] > this.games[this.currentLayer].points[1] ? this.games[this.currentLayer].Team1:this.games[this.currentLayer].Team2,second:this.games[this.currentLayer].points[0] < this.games[this.currentLayer].points[1] ? this.games[this.currentLayer].Team1:this.games[this.currentLayer].Team2};
+		}
 		var nextLayerTeams = [];
 		//Vorrunde oder K.O
 		if (this.currentLayer == 0) {//Vorrunde
