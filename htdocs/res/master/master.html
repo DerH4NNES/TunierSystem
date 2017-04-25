@@ -53,6 +53,7 @@
                                 <button type="button" class="btn btn-primary btn-lg btn-block" ng-click="stopGame();">Spiel beenden</button>
                             </div>
                         </div>
+                        <br/><br/>
                     </div>
                     <div ng-if="!activeRefereeTab.actualGame.started">
                         <div class="row">
@@ -79,7 +80,7 @@
             <ul class="nav nav-tabs">
                 <li role="presentation" class="tab" ng-repeat="tab in config.competitions track by $index" ng-class="{'active':activeCompetitionsTab==tab}" ng-click="setActiveTab2(tab);"><a class="tab-link">{{tab.name}}</a></li>
             </ul>
-            <div class="container pt20">
+            <div class="container pt20" ng-if="!activeCompetitionsTab.finished">
                 
                 <h4><b>{{activeCompetitionsTab.name}}:</b> - {{activeCompetitionsTab.layer.layerName}}</h4><br/>
                 <br/>
@@ -113,6 +114,12 @@
                     </div>
                 </div>
 
+            </div>
+            <div class="container pt20" ng-if="activeCompetitionsTab.finished">
+                <h3>Dieses Turnier ist beendet!</h3>
+                <br/>
+                1. {{activeCompetitionsTab.additional.winner.name}}<br/>
+                2. {{activeCompetitionsTab.additional.second.name}}<br/>
             </div>
         </div>
         #@KEYPLACE@#

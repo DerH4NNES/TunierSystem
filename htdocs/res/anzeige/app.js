@@ -1,39 +1,26 @@
 var app = angular.module("anzeigeApp",[]);
 
 app.controller("mainCtrl",function($scope,$http){
-    $scope.key = "";
-    $scope.config = {};
-    $scope.activeRefereeTab={};
+    //$scope.config = {};
+    $scope.activeGameTab={};
     $scope.activeCompetitionsTab={};
 	$scope.competitions = [];
-	$scope.wiedumoechtest = function(){
-		$scope.socket.disconnect();
-		console.error("Timout by Client");
-	};
-	$scope.init = function(){
-		$http({url: "/api/anzeige/data","method":"get"}
-		).than(function(response){
-			$scope.competitions = response.data.competitions;
-		},function(error){
-			//error
-			console.log("Marcel ist schuld!");
-		});
-	}
-	
-    $scope.initSocket = function(ss)
+	$scope.runningGames = [];
+
+    /*$scope.initSocket = function(ss)
     {
         $scope.socket = io();
 		$scope.socket.emit("auth",JSON.stringify({"type":"anzeige"}));
-		$scope.authTimeout = setTimeout(($scope.wiedumoechtest).bind(this),5000);
+		//$scope.authTimeout = setTimeout(($scope.wiedumoechtest).bind(this),5000);
 		$scope.socket.on("authConfirm",function(msg){
 			var data = JSON.tryParse(msg);
 			if(data.status == "OK"){
-				//FETTIG
+				//FERTIG
 				
 			}
 			else{
 				console.error("konnte nicht authentifizieren '"+msg+"'");
-				//FEHLA MELDUBG
+				//AUTH Fehler
 			
 			}
 		});
@@ -41,42 +28,31 @@ app.controller("mainCtrl",function($scope,$http){
 			console.log("Client disconnected");
 		});
     };
-	$scope.socket.on("addPoint",function(msg){
-		var data = JSON.tryParse(msg);
-		if(data){
-			console.log(data);
-			//$scope.config.referees[data.referee].actualGame.Points[data.team]++;
-			$scope.competitions[data.competition].games.find(function(g){return g.id==data.game}).Points[data.team]++;
-			//if($scope.config.competitions[data.competition].layer.layer==0)$scope.config.competitions[data.competition].groups.find(function(g){console.log(g);return g.games.find(function(ga){if(ga.id==data.game){ga.Points[data.team]++;return true;}else return false;});});
-		}
-	});
-	
-	$scope.socket.on("remPoint",function(msg){
-		var data = JSON.tryParse(msg);
-		if(data){
-			console.log(data);
-			//$scope.config.referees[data.referee].actualGame.Points[data.team]--;
-			$scope.competitions[data.competition].games.find(function(g){return g.id==data.game}).Points[data.team]--;
-			//if($scope.config.competitions[data.competition].layer.layer==0)$scope.config.competitions[data.competition].groups.find(function(g){console.log(g);return g.games.find(function(ga){if(ga.id==data.game){ga.Points[data.team]++;return true;}else return false;});});
-		}
-	});
+	*/
 
     $scope.onload = function()
     {
-        var regexP = /<!--#(\w+)#-->/g;
-        $scope.key = regexP.exec(document.documentElement.outerHTML)[1];
-
-        $http({method:"GET",url:"/api/master/"+$scope.key+"/data"}).then(function(res){
+        $http({method:"GET",url:"/api/anzeige/data"}).then(function(res){
             $scope.config = res.data;
-            $scope.initSocket(res.data.socketSecret);
-            $scope.activeRefereeTab=$scope.config.referees[0];
-            $scope.activeCompetitionsTab=$scope.config.competitions[0];
+            $scope.competitions=res.data.competitions;
+            $scope.runningGames = res.data.runningGames;
+            $scope.activeGameTab=$scope.runningGames[0];
+            $scope.activeCompetitionsTab=$scope.competitions[0];
+            //console.log($scope.activeCompetitionsTab.groups);
+            $scope.initSocket();
         },function(err){
             alert("Fataler Fehler beim abrufen der Daten!\n"+err);
         });
     };
 
-    $scope.initSocket = function(ss)
+    $scope.getRGame = function(agt)
+    {   console.log(agt.currentGame);
+        return agt.currentGame?
+            $scope.competitions[agt.currentGame.competitionIndex].games.find(function(g){return g.id==agt.currentGame.gameId;})
+            :null;
+    };
+
+    $scope.initSocket = function()
     {
         $scope.socket = io();
 
@@ -84,10 +60,10 @@ app.controller("mainCtrl",function($scope,$http){
             var data = JSON.tryParse(msg);
             if(data.status=="OK"){
                 console.log("Auth Confirmed. Socket active");
-                
             }
             else{
-                alert("Konnte nicht Authentifizieren!\nDieser Versuch wird gemeldet!");
+                console.log("Socket Auth Error. Using Auto-Refresh...");
+                setTimeout(function(){location.reload();},10000);
             }
         });
         $scope.socket.on("competitionLayerConfirm",function(msg){
@@ -97,7 +73,7 @@ app.controller("mainCtrl",function($scope,$http){
                 location.reload();
             }
             else{
-                alert("Konnte Ebene nicht beenden!");
+                console.error("FATAL ERROR SERVERSIDE. IGNORING");
             }
         });
 
@@ -106,9 +82,43 @@ app.controller("mainCtrl",function($scope,$http){
             if(data.status=="OK")location.reload();
         });
 
+        $scope.socket.on("addPoint",function(msg){
+            var data = JSON.tryParse(msg);
+            if(data){
+                console.log(data);
+                //$scope.config.referees[data.referee].actualGame.Points[data.team]++;
+                $scope.competitions[data.competition].games.find(function(g){return g.id==data.game}).Points[data.team]++;
+                //if($scope.config.competitions[data.competition].layer.layer==0)$scope.config.competitions[data.competition].groups.find(function(g){console.log(g);return g.games.find(function(ga){if(ga.id==data.game){ga.Points[data.team]++;return true;}else return false;});});
+                if(!$scope.$$phase)$scope.$apply();
+            }
+        });
+        
+        $scope.socket.on("remPoint",function(msg){
+            var data = JSON.tryParse(msg);
+            if(data){
+                console.log(data);
+                //$scope.config.referees[data.referee].actualGame.Points[data.team]--;
+                $scope.competitions[data.competition].games.find(function(g){return g.id==data.game}).Points[data.team]--;
+                //if($scope.config.competitions[data.competition].layer.layer==0)$scope.config.competitions[data.competition].groups.find(function(g){console.log(g);return g.games.find(function(ga){if(ga.id==data.game){ga.Points[data.team]++;return true;}else return false;});});
+                if(!$scope.$$phase)$scope.$apply();
+            }
+        });
+
+        $scope.socket.on("competitionEnded",(msg)=>{
+            var data = JSON.tryParse(msg);
+            if(data){
+                $scope.competitions[data.competition].finished=true;
+                $scope.competitions[data.competition].additional=data.additional;
+                if(!$scope.$$phase)$scope.$apply();
+            }
+        });
+
+        $scope.socket.on("endGameDone",function(msg){
+            location.reload();
+        });
+
         $scope.socket.emit("auth",JSON.stringify({
-            "type":"master",
-            "secret":ss
+            "type":"anzeige"
         }));
     };
 
@@ -124,7 +134,7 @@ app.controller("mainCtrl",function($scope,$http){
 
     $scope.setActiveTab = function(t)
     {
-        $scope.activeRefereeTab = t;
+        $scope.activeGameTab = t;
     };
     $scope.setActiveTab2 = function(t)
     {
@@ -136,28 +146,9 @@ app.controller("mainCtrl",function($scope,$http){
         if($scope.activeCompetitionsTab.games)return $scope.activeCompetitionsTab.games.find(function(g){return g.finished==false;});
     };
 
-    $scope.endRound =function()
-    {
-        if(!$scope.gamesToPlayLeft()){
-            console.log(JSON.stringify({competition:$scope.config.competitions.indexOf($scope.activeCompetitionsTab)}));
-            $scope.socket.emit("endRound",JSON.stringify({competition:$scope.config.competitions.indexOf($scope.activeCompetitionsTab)}));
-        }
-    };
-
     $scope.getTimestampDisplay = function(ts){
         var dur = moment.duration(moment().diff(moment(ts)));
         return dur.minutes()+":"+dur.seconds();
-    };
-
-    $scope.getNewGameForReferee = function()
-    {   
-        if($scope.gamesToPlayLeft())
-            $scope.socket.emit("pickNewGame",JSON.stringify({type:"master","competition":Math.floor(Math.random()*$scope.config.competitions.length),"referee":$scope.config.referees.indexOf($scope.activeRefereeTab)}));
-    };
-
-    $scope.startRefereeGame = function()
-    {
-        $scope.socket.emit("pickNewGame",JSON.stringify({type:"master","referee":$scope.config.referees.indexOf($scope.activeRefereeTab)}));
     };
 
     $scope.gameStateFilter = function(state){
@@ -168,7 +159,7 @@ app.controller("mainCtrl",function($scope,$http){
 
     //Start Controller
     $scope.onload();
-    setTimeout(function(){if(!$scope.$$phase)$scope.$apply();},1000);
+    setInterval(function(){if(!$scope.$$phase)$scope.$apply();},1000);
 
 });
 
@@ -177,7 +168,7 @@ JSON.tryParse = function(str){
         return JSON.parse(str);
     }
     catch(ex){
-        alert("FATALER PARSE ERROR!\n"+ex);
+        //alert("FATALER PARSE ERROR!\n"+ex);
         return {};
     }
 };

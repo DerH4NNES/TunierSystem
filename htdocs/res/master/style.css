@@ -23,3 +23,15 @@ table.table tr.running
     font-size:30px;
     font-weight:bold;
 }
+
+.refUrl
+{
+    margin-top:10px;
+    text-align:center;
+    margin: 0 auto;
+}
+
+.refUrl #qrReferee
+{
+    margin-left: calc( 50% - 256px / 2);
+}

@@ -12,19 +12,33 @@
         
         <div class="container">
             <div class="page-header">
-                <h1>Dashboard<small> Turniersystem</small></h1>
+                <h1>Übersicht<small> Turniersystem</small></h1>
             </div>
             
             <h3>Laufende Spiele</h3>
             <ul class="nav nav-tabs">
-                <li role="presentation" class="tab" ng-repeat="tab in config.referees track by $index" ng-class="{'active':activeRefereeTab==tab}" ng-click="setActiveTab(tab);"><a class="tab-link">Schiedsrichter #{{tab.id}}</a></li>
+                <li role="presentation" class="tab" ng-repeat="tab in runningGames track by $index" ng-class="{'active':activeGameTab==tab}" ng-click="setActiveTab(tab);"><a class="tab-link">Feld #{{tab.id}}</a></li>
             </ul>
+            <div ng-if="activeGameTab.currentGame">
+                <div class="row">
+                    <div class="col-md-6 btextp">{{getRGame(activeGameTab).Team1.name}}: {{getRGame(activeGameTab).Points[0]}}</div>
+                    <div class="col-md-6 btextp">{{getRGame(activeGameTab).Team2.name}}: {{getRGame(activeGameTab).Points[1]}}</div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <h3 style="text-align:center;">{{getTimestampDisplay(getRGame(activeGameTab).timestamp)}}</h3>
+                    </div>
+                </div>
+            </div>
+            <div ng-if="!activeGameTab.currentGame">
+                <h3>Kein Laufendes Spiel</h3><br/><br/><br/>
+            </div>
 
             <h3>Turniere:</h3>
             <ul class="nav nav-tabs">
-                <li role="presentation" class="tab" ng-repeat="tab in config.competitions track by $index" ng-class="{'active':activeCompetitionsTab==tab}" ng-click="setActiveTab2(tab);"><a class="tab-link">{{tab.name}}</a></li>
+                <li role="presentation" class="tab" ng-repeat="tab in competitions track by $index" ng-class="{'active':activeCompetitionsTab==tab}" ng-click="setActiveTab2(tab);"><a class="tab-link">{{tab.name}}</a></li>
             </ul>
-            <div class="container pt20">          
+            <div class="container pt20" ng-if="!activeCompetitionsTab.finished">          
                 
                 <div class="row">
                     <div class="col-md-4">
@@ -35,7 +49,7 @@
                                 <tr ng-if="activeCompetitionsTab.layer.layer!=0"><th>Team</th></tr>
                             </thead>
                             <tbody>
-                                <tr ng-if="activeCompetitionsTab.layer.layer==0" ng-repeat="bbgroup in activeCompetitionsTab.groups"><td>{{group.name}}</td><td><ul><li ng-repeat="team in group.teams">{{team.name}}</li></ul></td></tr>
+                                <tr ng-if="activeCompetitionsTab.layer.layer==0" ng-repeat="group in activeCompetitionsTab.groups"><td>{{group.name}}</td><td><ul><li ng-repeat="team in group.teams">{{team.name}}</li></ul></td></tr>
                                 <tr ng-if="activeCompetitionsTab.layer.layer!=0" ng-repeat="team in activeCompetitionsTab.teams"><td>{{team.name}}</td></tr>
                             </tbody>
                         </table>
@@ -54,7 +68,12 @@
                 </div>
 
             </div>
+            <div class="container pt20" ng-if="activeCompetitionsTab.finished">
+                <h3>Dieses Turnier ist beendet!</h3>
+                <br/>
+                1. {{activeCompetitionsTab.additional.winner.name}}<br/>
+                2. {{activeCompetitionsTab.additional.second.name}}<br/>
+            </div>
         </div>
-        #@KEYPLACE@#
     </body>
 </html>

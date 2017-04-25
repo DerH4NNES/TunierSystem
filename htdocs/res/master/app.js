@@ -46,18 +46,52 @@ app.controller("mainCtrl",function($scope,$http){
             }
         });
 
+        $scope.socket.on("gameStart",function(msg){
+            var data = JSON.tryParse(msg);
+            console.log(data);
+            if(data.status=="OK"){
+                $scope.config.competitions.forEach(function(c){
+                    c.games.forEach(function(g){
+                        if(g.id==data.game.id){
+                            g.started=true;
+                            g.timestamp=data.game.timestamp;
+                        }
+                    });
+                });
+                if(!$scope.$$phase)$scope.$apply();
+            }
+        });
+        
         $scope.socket.on("gameSet",function(msg){
             var data = JSON.tryParse(msg);
-            if(data.status=="OK")location.reload();
+            console.log(data);
+            if(data.status=="OK"){
+                //console.log("1");
+                $scope.config.competitions.forEach(function(c,ind){
+                    //console.log("comp");
+                    c.games.forEach(function(g){
+                        //console.log("game");
+                        //console.log(g.id,data.game,data.game);
+                        if(g.id==data.game){
+                            //console.log("Game FOUND");
+                            $scope.config.referees[data.referee].actualGame=g;
+                            g.blocked=true;
+                            g.competition=ind;
+                        }
+                    });
+                });
+                if(!$scope.$$phase)$scope.$apply();
+            }
         });
 
         $scope.socket.on("addPoint",function(msg){
             var data = JSON.tryParse(msg);
             if(data){
                 console.log(data);
-                $scope.config.referees[data.referee].actualGame.Points[data.team]++;
+                //$scope.config.referees[data.referee].actualGame.Points[data.team]++;
                 $scope.config.competitions[data.competition].games.find(function(g){return g.id==data.game}).Points[data.team]++;
                 //if($scope.config.competitions[data.competition].layer.layer==0)$scope.config.competitions[data.competition].groups.find(function(g){console.log(g);return g.games.find(function(ga){if(ga.id==data.game){ga.Points[data.team]++;return true;}else return false;});});
+                if(!$scope.$$phase)$scope.$apply();
             }
         });
 		
@@ -65,10 +99,11 @@ app.controller("mainCtrl",function($scope,$http){
             var data = JSON.tryParse(msg);
             if(data){
                 console.log(data);
-                $scope.config.referees[data.referee].actualGame.Points[data.team]--;
+                //$scope.config.referees[data.referee].actualGame.Points[data.team]--;
                 $scope.config.competitions[data.competition].games.find(function(g){return g.id==data.game}).Points[data.team]--;
                 //if($scope.config.competitions[data.competition].layer.layer==0)$scope.config.competitions[data.competition].groups.find(function(g){console.log(g);return g.games.find(function(ga){if(ga.id==data.game){ga.Points[data.team]++;return true;}else return false;});});
-            }
+                if(!$scope.$$phase)$scope.$apply();
+             }
         });
 
         $scope.socket.on("endGameDone",(msg)=>{
@@ -81,6 +116,15 @@ app.controller("mainCtrl",function($scope,$http){
                     });
                 });
                 //$scope.activeCompetitionsTab.games.forEach(function(g){if(g.id==data.game)g.finished=true;});
+                if(!$scope.$$phase)$scope.$apply();
+            }
+        });
+
+        $scope.socket.on("competitionEnded",(msg)=>{
+            var data = JSON.tryParse(msg);
+            if(data){
+                $scope.config.competitions[data.competition].finished=true;
+                $scope.config.competitions[data.competition].additional=data.additional;
                 if(!$scope.$$phase)$scope.$apply();
             }
         });
@@ -194,7 +238,7 @@ JSON.tryParse = function(str){
         return JSON.parse(str);
     }
     catch(ex){
-        alert("FATALER PARSE ERROR!\n"+ex);
+        //alert("FATALER PARSE ERROR!\n"+ex);
         return {};
     }
 };
