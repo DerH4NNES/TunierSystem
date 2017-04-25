@@ -28,13 +28,14 @@ class storageController {
 		this.groups = [];
 		var settingGsize = this.JSONObject.levels[0].teamGroupAmount;
 		this.LayerFree = false;
-		var settingFsize = this.JSONObject.levels[0].teamWinnerAmount;
+		this.settingFsize = this.JSONObject.levels[0].teamWinnerAmount;
 		var tc = 0;
 		var gcount = 0;
+		
 		var finalTeams = 0;
 		var LETTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
 		tc = this.JSONObject.teams.length;
-		this.finalteams = tc / (settingGsize / settingFsize);
+		this.finalteams = tc / (settingGsize / this.settingFsize);
 		gcount = tc / settingGsize;
 		this.JSONObject.teams.forEach(((t)=>{t.id=this.getRandomMD5;}).bind(this));
 		for (var j = 0; j < gcount; j++) {//Vorrunde generieren
@@ -124,7 +125,7 @@ class storageController {
 		return md5(Date.now()+Math.random());
 	}
 
-	finishLayer(currentLayer){
+	finishLayer(){
 		if (!this.LayerFree) {
 			//Checke ob alle Spiele gespielt wurden
 			for (var i = 0; i < this.games[this.currentLayer].length; i++) {
@@ -138,11 +139,23 @@ class storageController {
 		var nextLayerTeams = [];
 		//Vorrunde oder K.O
 		if (this.currentLayer == 0) {//Vorrunde
-
+			console.log("############### VORRUNDE ################");
+			for(var i=0;i<this.groups.length;i++){
+				var steams =(this.groups[i].teams).slice(0,this.groups[i].teams.length);
+					steams.sort((a,b) =>{
+					return b.points-a.points;
+				});
+			}
+			for(var i=0;i<this.groups.length;i++){
+				for(var j=0;j<this.settingFsize;j++){
+					nextLayerTeams.push(this.groups[i].teams[j]);
+				}
+			}
 		}
 		else {//K.0
 			for (var i = 0; i < this.games[this.currentLayer].length; i++) {
-				if (this.games[this.currentLayer].Points[0] > this.games[this.currentLayer].Points[1]) {
+				console.log(i);
+				if (this.games[this.currentLayer].points[0] > this.games[this.currentLayer].points[1]) {
 					nextLayerTeams.push(this.games[this.currentLayer].Team1);
 				}
 				else {
@@ -150,8 +163,8 @@ class storageController {
 				}
 			}
 		}
-
-		for (var j = 0; j < this.nextLayerTeams; j += 2) {//Jedes Team bekommt einen durchlauf für alle Gegner. Bei letztem Durchlauf sind alle teams gesetzt
+		this.games[this.currentLayer+1] = [];
+		for (var j = 0; j < nextLayerTeams.length; j += 2) {//Jedes Team bekommt einen durchlauf für alle Gegner. Bei letztem Durchlauf sind alle teams gesetzt
 			var game =
 				{
 					Team1: nextLayerTeams[j],
@@ -165,9 +178,12 @@ class storageController {
 					blocked:false
 				}
 			this.games[this.currentLayer + 1].push(game);
-
 		}
+		console.log(JSON.stringify(this.games[this.currentLayer]));
 		this.currentLayer++;
+		console.log("######################################");
+		console.log(JSON.stringify(nextLayerTeams));
+		console.log(JSON.stringify(this.games[this.currentLayer]));
 		return nextLayerTeams;
 	}
 	get getRemainingTeams(){
@@ -270,6 +286,16 @@ class storageController {
 	//Runde beenden
 	finishGame(gameID){
 		this.games[gameID].finished = true;
+		if(this.games[gameID].Points[0] == this.games[gameID].Points[1]){
+			this.games[gameID].Team1.points += 1;
+			this.games[gameID].Team1.points += 1;
+		}
+		else if(this.games[gameID].Points[0] > this.games[gameID].Points[1]){
+			this.games[gameID].Team1.points += 2;
+		}
+		else{
+			this.games[gameID].Team2.points += 2;
+		}
 	}
 	
 	//Punkt für Team x in Spiel x auf der aktuellen Ebene
