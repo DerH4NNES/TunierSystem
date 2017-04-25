@@ -138,8 +138,14 @@ class storageController {
 		}
 		if(this.games[this.currentLayer].length <= 1){
 			console.log("==================");
-			console.log(this.games[this.currentLayer]);
-			return {competitionEnd: true, winner: this.games[this.currentLayer].Points[0] > this.games[this.currentLayer].Points[1] ? this.games[this.currentLayer].Team1:this.games[this.currentLayer].Team2,second:this.games[this.currentLayer].points[0] < this.games[this.currentLayer].points[1] ? this.games[this.currentLayer].Team1:this.games[this.currentLayer].Team2};
+			console.log(this.games[this.currentLayer][0]);
+			return {competitionEnd: true, 
+				winner: this.games[this.currentLayer][0].Points[0] > this.games[this.currentLayer][0].Points[1] ? 
+					this.games[this.currentLayer][0].Team1:
+					this.games[this.currentLayer][0].Team2,
+				second:this.games[this.currentLayer][0].Points[0] < this.games[this.currentLayer][0].Points[1] ? 
+					this.games[this.currentLayer][0].Team1:
+					this.games[this.currentLayer][0].Team2};
 		}
 		var nextLayerTeams = [];
 		//Vorrunde oder K.O
