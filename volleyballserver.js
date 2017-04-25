@@ -613,7 +613,7 @@ function startSocket()
                             r.socket.emit("endGameDone",JSON.stringify({competition:data.competition,game:data.game,status:"OK"}));
                     });
                     //socket.emit("endGameDone",JSON.stringify({competition:data.competition,game:data.game,status:"OK"}));
-                    runningConfig.referees.forEach((r)=>{r.actualGame=null;});
+                    runningConfig.referees.forEach((r)=>{if(r.actualGame.id==data.game)r.actualGame=null;});
                 }
             }
             else{
