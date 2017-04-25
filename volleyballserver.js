@@ -605,7 +605,7 @@ function startSocket()
                     game.finished=true;
                     if(runningConfig.gameMaster.socket)runningConfig.gameMaster.socket.emit("endGameDone",JSON.stringify({competition:data.competition,game:data.game,status:"OK"}));
                     runningConfig.referees.forEach((r)=>{
-                        if(r.socket)
+                        if(r.socket&&r.actualGame&&r.actualGame.id==game.id)
                             r.socket.emit("endGameDone",JSON.stringify({competition:data.competition,game:data.game,status:"OK"}));
                     });
                     runningConfig.anzeigen.forEach((r)=>{
