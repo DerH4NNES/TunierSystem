@@ -569,7 +569,7 @@ function startSocket()
             console.log(data);
             if(!checkIfPermission(socket.id))return;
             runningConfig.competitions[data.competition].gamePoint(data.id,data.team);
-            runningConfig.referees.forEach((rf)=>{if(rf.socket&&rf.actualGame.id==data.id)rf.socket.emit("addPoint",JSON.stringify({game:data.id,team:data.team}));});
+            runningConfig.referees.forEach((rf)=>{if(rf.socket&&rf.actualGame&&rf.actualGame.id==data.id)rf.socket.emit("addPoint",JSON.stringify({game:data.id,team:data.team}));});
             if(runningConfig.gameMaster.socket)
                 runningConfig.gameMaster.socket.emit("addPoint",JSON.stringify({competition:data.competition,game:data.id,team:data.team,referee:runningConfig.referees.indexOf(runningConfig.referees.find((r)=>{return r.actualGame&&r.actualGame.id==data.id;}))}));
 			runningConfig.anzeigen.forEach(function(anz){
@@ -584,7 +584,7 @@ function startSocket()
             console.log(data);
             if(!checkIfPermission(socket.id))return;
             runningConfig.competitions[data.competition].gameRemovePoint(data.id,data.team);
-            runningConfig.referees.forEach((rf)=>{if(rf.socket&&rf.actualGame.id==data.id)rf.socket.emit("remPoint",JSON.stringify({game:data.id,team:data.team}));});
+            runningConfig.referees.forEach((rf)=>{if(rf.socket&&rf.actualGame&&rf.actualGame.id==data.id)rf.socket.emit("remPoint",JSON.stringify({game:data.id,team:data.team}));});
             if(runningConfig.gameMaster.socket)
                 runningConfig.gameMaster.socket.emit("remPoint",JSON.stringify({competition:data.competition,game:data.id,team:data.team,referee:runningConfig.referees.indexOf(runningConfig.referees.find((r)=>{return r.actualGame&&r.actualGame.id==data.id;}))}));
         
