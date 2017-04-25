@@ -656,8 +656,8 @@ function startSocket()
 
 function checkIfPermission(socketId)
 {
-    if(runningConfig.gameMaster.socket&&runningConfig.gameMaster.socket.id==socketId||
-    runningConfig.referees.find((r)=>{return r.socket && r.socket.id==socketId;})){
+    if(runningConfig.gameMaster&&runningConfig.gameMaster.socket&&runningConfig.gameMaster.socket.id==socketId||
+    runningConfig.referees&&runningConfig.referees.find((r)=>{return r.socket && r.socket.id==socketId;})){
         return true;
     }
     else{
